@@ -1,5 +1,14 @@
-ClassMethod ZvGetQueryCost(zvSqlQuery As %String) As %Status
+ClassMethod ZvGetQueryCost(zvSqlQuery As %String, zvNamespace As %String = "") As %Status
 {
+    // Set the namespace if provided
+    if zvNamespace'="" {
+        znspace = ##class(%Library.Process).ChangeNamespace(zvNamespace)
+        if $$$ISERR(znspace) {
+            write "Error changing namespace: ", ##class(%SYSTEM.Status).GetErrorText(znspace), !
+            quit znspace
+        }
+    }
+
     // Prepare the query
     set zvStatus = ##class(%SYSTEM.SQL).Execute("EXPLAIN " _ zvSqlQuery)
     if $$$ISERR(zvStatus) {
