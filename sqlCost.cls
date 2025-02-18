@@ -2,10 +2,10 @@ ClassMethod ZvGetQueryPlan(zvSqlQuery As %String, zvNamespace As %String = "") A
 {
     // Set the namespace if provided
     if zvNamespace'="" {
-        znspace = ##class(%Library.Process).ChangeNamespace(zvNamespace)
-        if $$$ISERR(znspace) {
-            write "Error changing namespace: ", ##class(%SYSTEM.Status).GetErrorText(znspace), !
-            quit znspace
+        set zvStatus = ##class(%SYSTEM.Process).ChangeNamespace(zvNamespace)
+        if $$$ISERR(zvStatus) {
+            write "Error changing namespace: ", ##class(%SYSTEM.Status).GetErrorText(zvStatus), !
+            quit zvStatus
         }
     }
 
