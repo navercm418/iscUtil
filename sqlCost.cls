@@ -1,4 +1,4 @@
-ClassMethod ZvGetQueryCost(zvSqlQuery As %String, zvNamespace As %String = "") As %Status
+ClassMethod ZvGetQueryPlan(zvSqlQuery As %String, zvNamespace As %String = "") As %Status
 {
     // Set the namespace if provided
     if zvNamespace'="" {
@@ -10,30 +10,16 @@ ClassMethod ZvGetQueryCost(zvSqlQuery As %String, zvNamespace As %String = "") A
     }
 
     // Prepare the query
-    set zvStatus = ##class(%SYSTEM.SQL).Execute("EXPLAIN " _ zvSqlQuery)
+    set zvStatus = ##class(%SYSTEM.SQL).Execute("EXPLAIN " _ zvSqlQuery, .zvResultSet)
     if $$$ISERR(zvStatus) {
         write "Error preparing query: ", ##class(%SYSTEM.Status).GetErrorText(zvStatus), !
         quit zvStatus
     }
 
-    // Execute the query
-    set zvRs = ##class(%ResultSet).%New()
-    set zvStatus = zvRs.Prepare("EXPLAIN " _ zvSqlQuery)
-    if $$$ISERR(zvStatus) {
-        write "Error preparing query: ", ##class(%SYSTEM.Status).GetErrorText(zvStatus), !
-        quit zvStatus
-    }
-
-    set zvStatus = zvRs.Execute()
-    if $$$ISERR(zvStatus) {
-        write "Error executing query: ", ##class(%SYSTEM.Status).GetErrorText(zvStatus), !
-        quit zvStatus
-    }
-
-    // Fetch and print the query cost details
-    while zvRs.Next() {
-        write "Cost: ", zvRs.Get("Cost"), !
-        write "Plan: ", zvRs.Get("Plan"), !
+    // Fetch and print the query execution plan details
+    while zvResultSet.%Next() {
+        write "Plan: ", zvResultSet.%Get("Plan"), !
+        write "Cost: ", zvResultSet.%Get("Estimated_Cost"), !
     }
 
     quit $$$OK
